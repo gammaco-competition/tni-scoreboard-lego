@@ -7,101 +7,184 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
+      /* จัดหน้าจอให้เต็มจอพอดีและไม่มี Scrollbar ของ Browser */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden; 
+      }
+
       body {
         background-color: #ffffff;
         color: #202124;
         font-family: 'Kanit', sans-serif;
-        margin: 0;
-        overflow: hidden;
         display: flex;
-        flex-direction: column;
-        align-items: center;
-        height: 100vh;
+        flex-direction: column; /* จัดวางแนวตั้ง: Header -> Content -> Footer */
       }
+
       .header-section { 
         width: 100%; 
         text-align: center; 
-        padding: 40px 0; 
+        padding: 30px 0; 
         background-color: #FFCC00; 
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        flex-shrink: 0; /* ป้องกัน Header หดตัว */
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       }
+
       h1 { 
         font-weight: 700; 
         font-size: 3.5rem; 
         color: #ffffff; 
-        letter-spacing: 2px; 
         margin: 0; 
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
       }
+
+      /* พื้นที่หลักของ Leaderboard */
+      .leaderboard-container {
+        flex-grow: 1; /* ขยายให้เต็มพื้นที่ที่เหลือระหว่าง Header และ Footer */
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        overflow: hidden;
+        padding: 20px 0;
+      }
+
       .leaderboard-card { 
         width: 95%; 
         max-width: 1800px; 
         background: #fff; 
-        margin-top: 20px;
-        flex-grow: 1;
         display: flex;
         flex-direction: column;
+        height: 100%;
       }
+
+      /* ส่วนหัวตาราง (ให้คงที่) */
+      .table-fixed-header {
+        flex-shrink: 0;
+      }
+
+      /* ส่วนที่ให้เลื่อนได้ */
       .scroll-viewport { 
         flex-grow: 1;
         overflow: hidden; 
         position: relative; 
-        border-top: 2px solid #f0f0f0; 
       }
-      table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-      
-      th:nth-child(1) { width: 10%; } 
-      th:nth-child(2) { width: 40%; } 
-      th:nth-child(3) { width: 15%; } 
-      th:nth-child(4) { width: 15%; } 
-      th:nth-child(5) { width: 20%; } 
 
-      th { font-size: 1.5rem; padding: 20px 10px !important; border-bottom: 3px solid #1a73e8 !important; color: #1a73e8; text-align: center; background: white; }
-      tbody td { padding: 15px 10px !important; font-size: 1.8rem; border-bottom: 1px solid #f1f3f4 !important; text-align: center; vertical-align: middle; }
+      table { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 0 !important; }
+      
+      th { 
+        font-size: 1.6rem; 
+        padding: 20px 10px !important; 
+        border-bottom: 3px solid #1a73e8 !important; 
+        color: #1a73e8; 
+        text-align: center; 
+        background: white;
+      }
+
+      /* ความกว้างคอลัมน์ (ปรับให้ตรงกันทั้ง Header และ Body) */
+      .col-1 { width: 10%; } 
+      .col-2 { width: 40%; } 
+      .col-3 { width: 15%; } 
+      .col-4 { width: 15%; } 
+      .col-5 { width: 20%; } 
+
+      tbody td { 
+        padding: 15px 10px !important; 
+        font-size: 1.8rem; 
+        border-bottom: 1px solid #f1f3f4 !important; 
+        text-align: center; 
+        vertical-align: middle; 
+      }
       
       .total-score { font-weight: 700; color: #d93025; font-size: 2.2rem; }
-      #scroller-content { position: absolute; width: 100%; top: 0; transition: opacity 0.5s ease-in; }
-      .rank-badge { width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: #f8f9fa; margin: 0 auto; font-weight: 700; border: 1px solid #dee2e6; font-size: 1.6rem; }
+
+      /* เนื้อหาที่จะถูกเลื่อน */
+      #scroller-content { 
+        position: absolute; 
+        width: 100%; 
+        top: 0; 
+        left: 0;
+      }
+
+      .rank-badge { 
+        width: 60px; height: 60px; 
+        display: flex; align-items: center; justify-content: center; 
+        border-radius: 50%; background: #f8f9fa; margin: 0 auto; 
+        font-weight: 700; border: 1px solid #dee2e6; font-size: 1.6rem; 
+      }
       
       .rank-1 { background: linear-gradient(135deg, #ffd700, #ffac00); color: #fff; border: none; box-shadow: 0 4px 10px rgba(255,172,0,0.4); }
       .rank-2 { background: linear-gradient(135deg, #c0c0c0, #959595); color: #fff; border: none; }
       .rank-3 { background: linear-gradient(135deg, #cd7f32, #a05a2c); color: #fff; border: none; }
       
-      .card-footer-clean { padding: 20px 0; width: 100%; text-align: center; color: #5f6368; background: #fff; }
+      /* Footer ติดขอบล่าง */
+      .card-footer-clean { 
+        flex-shrink: 0; /* ป้องกัน Footer โดนบีบ */
+        padding: 20px 0; 
+        width: 100%; 
+        text-align: center; 
+        color: #5f6368; 
+        background: #f8f9fa;
+        border-top: 1px solid #eee;
+      }
     </style>
   </head>
   <body>
     <div class="header-section"><h1>LEGO COMPETITION LEADERBOARD</h1></div>
-    <div class="leaderboard-card">
-      <div class="scroll-viewport" id="viewport">
-        <div id="scroller-content">
-          <table class="table mb-0">
+
+    <div class="leaderboard-container">
+      <div class="leaderboard-card">
+        <div class="table-fixed-header">
+          <table class="table">
             <thead>
-              <tr><th>Rank</th><th style="text-align: left;">Team Name</th><th>Auto</th><th>Manual</th><th>Total</th></tr>
+              <tr>
+                <th class="col-1">Rank</th>
+                <th class="col-2" style="text-align: left;">Team Name</th>
+                <th class="col-3">Auto</th>
+                <th class="col-4">Manual</th>
+                <th class="col-5">Total</th>
+              </tr>
             </thead>
-            <tbody id="table-body"></tbody>
           </table>
         </div>
-      </div>
-      <div class="card-footer-clean">
-        <p class="mb-0" style="font-size: 18px;">Organized by <strong>Gammaco (Thailand) Co., LTD.</strong></p>
+
+        <div class="scroll-viewport" id="viewport">
+          <div id="scroller-content">
+            <table class="table">
+              <tbody id="table-body">
+                </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
 
+    <div class="card-footer-clean">
+      <p class="mb-0" style="font-size: 18px;">Organized by <strong>Gammaco (Thailand) Co., LTD.</strong></p>
+    </div>
+
     <script>
-      // 🔗 วาง Web App URL ที่ก็อปปี้มาที่นี่
+      // 🔗 เปลี่ยน URL ตรงนี้
       const API_URL = 'https://script.google.com/macros/s/AKfycbwsRcvKzbjPSwOFhVR_KU6Un9hMqFJ4H6a4CDcCmiom4ABzBklAJl2C22mP53fowOXp/exec'; 
       
       let scrollInterval;
-      const waitTime = 10000; 
+      let reloopTimeout;
+      const waitTime = 10000; // เวลาหยุดรอ (ms)
 
       async function loadData() {
+        // ล้างสถานะการเลื่อนเดิมทั้งหมดก่อนเริ่มใหม่
+        clearInterval(scrollInterval);
+        clearTimeout(reloopTimeout);
+
         try {
           const response = await fetch(API_URL);
           const data = await response.json();
           renderTable(data);
         } catch (error) {
           console.error("Error fetching data:", error);
+          // หากพัง ให้รอ 10 วิแล้วลองดึงใหม่
+          reloopTimeout = setTimeout(loadData, 10000);
         }
       }
 
@@ -112,50 +195,56 @@
         tbody.innerHTML = data.map(item => {
           let rankClass = (item.rank == 1) ? 'rank-1' : (item.rank == 2) ? 'rank-2' : (item.rank == 3) ? 'rank-3' : '';
           return `<tr>
-            <td><div class="rank-badge ${rankClass}">${item.rank}</div></td>
-            <td style="text-align: left;">${item.teamName}</td>
-            <td style="font-weight: 500;">${item.autoScore}</td>
-            <td style="font-weight: 500;">${item.manualScore}</td>
-            <td class="total-score">${item.totalScore}</td>
+            <td class="col-1"><div class="rank-badge ${rankClass}">${item.rank}</div></td>
+            <td class="col-2" style="text-align: left;">${item.teamName}</td>
+            <td class="col-3" style="font-weight: 500;">${item.autoScore}</td>
+            <td class="col-4" style="font-weight: 500;">${item.manualScore}</td>
+            <td class="col-5 total-score">${item.totalScore}</td>
           </tr>`;
         }).join('');
 
-        content.style.opacity = "1";
-        startBottomToTopScroll();
+        // รีเซ็ตตำแหน่งไปด้านล่างสุดก่อนเริ่มเลื่อน
+        startAutoScroll();
       }
 
-      async function startBottomToTopScroll() {
+      function startAutoScroll() {
         const container = document.getElementById('viewport');
         const content = document.getElementById('scroller-content');
-        clearInterval(scrollInterval);
         
         let maxScroll = content.offsetHeight - container.offsetHeight;
         
-        if (maxScroll > 0) {
-          content.style.top = '-' + maxScroll + 'px';
-        } else {
+        if (maxScroll <= 0) {
           content.style.top = "0px";
+          // ถ้าข้อมูลน้อย ไม่ต้องเลื่อน แต่ให้เช็คข้อมูลใหม่ทุก 1 นาที
+          reloopTimeout = setTimeout(loadData, 60000);
           return;
         }
 
-        await new Promise(r => setTimeout(r, waitTime));
+        // เริ่มต้นที่ด้านล่างสุด
+        content.style.top = '-' + maxScroll + 'px';
 
-        const scrollSpeed = 0.8; 
-        scrollInterval = setInterval(() => {
-          let currentTop = parseFloat(content.style.top || 0);
-          if (currentTop < 0) {
-            content.style.top = (currentTop + scrollSpeed) + "px";
-          } else {
-            content.style.top = "0px";
-            clearInterval(scrollInterval);
-            setTimeout(() => { startBottomToTopScroll(); }, waitTime);
-          }
-        }, 30);
+        // ค้างไว้ที่ด้านล่าง (อันดับท้ายๆ)
+        reloopTimeout = setTimeout(() => {
+          const scrollSpeed = 0.8; // ปรับความเร็วตรงนี้ (น้อยลง = ช้าลง)
+          
+          scrollInterval = setInterval(() => {
+            let currentTop = parseFloat(content.style.top || 0);
+            
+            if (currentTop < 0) {
+              content.style.top = (currentTop + scrollSpeed) + "px";
+            } else {
+              // เมื่อเลื่อนถึงบนสุด (Rank 1)
+              content.style.top = "0px";
+              clearInterval(scrollInterval);
+              
+              // ค้างไว้ที่ Rank 1 แล้วค่อยดึงข้อมูลใหม่/เริ่มใหม่
+              reloopTimeout = setTimeout(loadData, waitTime);
+            }
+          }, 30);
+        }, waitTime);
       }
 
       window.onload = loadData;
-      // รีเฟรชข้อมูลจาก Google Sheets ทุก 1 นาที
-      setInterval(loadData, 60000); 
     </script>
   </body>
 </html>
