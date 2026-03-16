@@ -22,10 +22,27 @@
         flex-direction: column;
       }
 
+      /* ส่วน Banner ด้านบนสุด */
+      .banner-wrapper {
+        width: 100%;
+        height: 200px; /* จำกัดความสูงตามที่ต้องการ */
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #f8f9fa; /* สีพื้นหลังกรณีรูปยังไม่โหลด */
+      }
+
+      .banner-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* ให้รูปเต็มพื้นที่โดยไม่เสียสัดส่วน */
+      }
+
       .header-section { 
         width: 100%; 
         text-align: center; 
-        padding: 25px 0; 
+        padding: 15px 0; 
         background-color: #FFCC00; 
         flex-shrink: 0;
         box-shadow: 0 4px 10px rgba(0,0,0,0.1);
@@ -33,7 +50,7 @@
 
       h1 { 
         font-weight: 700; 
-        font-size: 3.2rem; 
+        font-size: 2.8rem; /* ลดขนาดลงนิดหน่อยเพื่อให้สมดุลกับ Banner */
         color: #ffffff; 
         margin: 0; 
         text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
@@ -45,7 +62,6 @@
         display: flex;
         justify-content: center;
         overflow: hidden;
-        padding-top: 10px;
       }
 
       .leaderboard-card { 
@@ -54,24 +70,21 @@
         background: #fff; 
         display: flex;
         flex-direction: column;
-        /* ความสูงรวมจะถูกจัดการโดย flex-grow */
       }
 
       .table-fixed-header { flex-shrink: 0; }
 
-      /* ตั้งค่าความสูงของ Viewport ให้พอดี 10 บรรทัด */
       .scroll-viewport { 
         flex-grow: 1;
         overflow: hidden; 
         position: relative;
-        /* บังคับความสูงบรรทัดเพื่อให้ 10 บรรทัดพอดีจอ */
       }
 
       table { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 0 !important; }
       
       th { 
-        font-size: 1.5rem; 
-        padding: 15px 10px !important; 
+        font-size: 1.4rem; 
+        padding: 12px 10px !important; 
         border-bottom: 3px solid #1a73e8 !important; 
         color: #1a73e8; 
         text-align: center; 
@@ -84,17 +97,17 @@
       .col-4 { width: 15%; } 
       .col-5 { width: 20%; } 
 
-      /* ปรับความสูงของบรรทัด (สำคัญมากเพื่อให้ได้ 10 บรรทัดพอดี) */
+      /* ปรับความสูงแถวเพื่อให้ลงตัว 10 บรรทัดเมื่อมี Banner */
       tbody td { 
-        height: 70px; /* กำหนดความสูงคงที่ */
+        height: 62px; /* ลดความสูงลงเล็กน้อยเพื่อให้พอดีพื้นที่ที่เหลือ */
         padding: 0 10px !important; 
-        font-size: 1.7rem; 
+        font-size: 1.6rem; 
         border-bottom: 1px solid #f1f3f4 !important; 
         text-align: center; 
         vertical-align: middle; 
       }
       
-      .total-score { font-weight: 700; color: #d93025; font-size: 2rem; }
+      .total-score { font-weight: 700; color: #d93025; font-size: 1.8rem; }
 
       #scroller-content { 
         position: absolute; 
@@ -104,10 +117,10 @@
       }
 
       .rank-badge { 
-        width: 50px; height: 50px; 
+        width: 45px; height: 45px; 
         display: flex; align-items: center; justify-content: center; 
         border-radius: 50%; background: #f8f9fa; margin: 0 auto; 
-        font-weight: 700; border: 1px solid #dee2e6; font-size: 1.4rem; 
+        font-weight: 700; border: 1px solid #dee2e6; font-size: 1.3rem; 
       }
       
       .rank-1 { background: linear-gradient(135deg, #ffd700, #ffac00); color: #fff; border: none; }
@@ -116,7 +129,7 @@
       
       .card-footer-clean { 
         flex-shrink: 0;
-        padding: 15px 0; 
+        padding: 10px 0; 
         width: 100%; 
         text-align: center; 
         color: #5f6368; 
@@ -126,7 +139,13 @@
     </style>
   </head>
   <body>
-    <div class="header-section"><h1>LEGO COMPETITION LEADERBOARD</h1></div>
+    <div class="banner-wrapper">
+      <img src="https://img1.pic.in.th/images/Backdrop-Smart-Warehouse-Solution-Competition-03.png">
+    </div>
+
+    <div class="header-section">
+      <h1>LEGO COMPETITION LEADERBOARD</h1>
+    </div>
 
     <div class="leaderboard-container">
       <div class="leaderboard-card">
@@ -156,7 +175,7 @@
     </div>
 
     <div class="card-footer-clean">
-      <p class="mb-0" style="font-size: 16px;">Organized by <strong>Gammaco (Thailand) Co., LTD.</strong></p>
+      <p class="mb-0" style="font-size: 14px;">Organized by <strong>Gammaco (Thailand) Co., LTD.</strong></p>
     </div>
 
     <script>
@@ -169,7 +188,6 @@
       async function loadData() {
         clearInterval(scrollInterval);
         clearTimeout(reloopTimeout);
-
         try {
           const response = await fetch(API_URL);
           const data = await response.json();
@@ -195,21 +213,17 @@
           </tr>`;
         }).join('');
 
-        // เช็คว่าต้องเลื่อนไหม (ถ้าแถว > 10)
         if (data.length > 10) {
           startAutoScroll();
         } else {
-          // ถ้าไม่ถึง 10 แถว ให้ขึ้นไปด้านบนสุดแล้วค้างไว้
           content.style.top = "0px";
-          reloopTimeout = setTimeout(loadData, 30000); // ดึงข้อมูลใหม่ทุก 30 วินาที
+          reloopTimeout = setTimeout(loadData, 30000);
         }
       }
 
       function startAutoScroll() {
         const container = document.getElementById('viewport');
         const content = document.getElementById('scroller-content');
-        
-        // คำนวณระยะที่ต้องเลื่อน (ส่วนที่เกินออกมาจากหน้าจอ)
         let maxScroll = content.offsetHeight - container.offsetHeight;
         
         if (maxScroll <= 0) {
@@ -218,20 +232,17 @@
           return;
         }
 
-        // เริ่มต้นที่จุดต่ำสุด (เพื่อเลื่อนขึ้นหา Rank 1)
         content.style.top = '-' + maxScroll + 'px';
 
         reloopTimeout = setTimeout(() => {
           const scrollSpeed = 0.7; 
           scrollInterval = setInterval(() => {
             let currentTop = parseFloat(content.style.top || 0);
-            
             if (currentTop < 0) {
               content.style.top = (currentTop + scrollSpeed) + "px";
             } else {
               content.style.top = "0px";
               clearInterval(scrollInterval);
-              // ค้างที่ Rank 1 แล้วเริ่มใหม่
               reloopTimeout = setTimeout(loadData, waitTime);
             }
           }, 30);
